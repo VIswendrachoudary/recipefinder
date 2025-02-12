@@ -1,2 +1,2 @@
 # recipefinder
-iwhere u can find recipes at one places
+where u can find recipes at one places
