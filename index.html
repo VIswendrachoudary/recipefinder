@@ -48,17 +48,18 @@
         .container {
             width: 100%;
             max-width: 450px;
-            padding: 2rem;
+            padding: 1.5rem;
             perspective: 1000px;
             margin: auto;
         }
 
         .login-card {
             position: relative;
-            transition: transform 0.8s;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             transform-style: preserve-3d;
             min-height: 580px;
             width: 100%;
+            animation: fadeIn 0.5s ease-out;
         }
 
         .login-side,
@@ -70,14 +71,18 @@
             height: 100%;
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(0, 0, 0, 0.25);
             backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.4s ease;
         }
 
-       
         .login-side {
             transform: rotateY(0deg);
         }
@@ -86,50 +91,73 @@
             transform: rotateY(180deg);
         }
 
-
         .login-card.flip {
             transform: rotateY(180deg);
         }
 
+        .logo-section {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeInDown 0.8s ease-out;
+        }
 
         .logo-section img {
-            width: 80px;
-            height: 80px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
             object-fit: cover;
             border: 3px solid rgba(255, 255, 255, 0.5);
             padding: 5px;
             background: rgba(255, 255, 255, 0.2);
-            margin-bottom: 0.8rem;
-            transition: transform 0.3s ease;
+            margin-bottom: 1rem;
+            transition: all 0.4s ease;
         }
 
         .logo-section img:hover {
-            transform: rotate(10deg);
+            transform: scale(1.05) rotate(5deg);
+            border-color: #ff6b6b;
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
         }
 
         .logo-section h1 {
-            color: #ffffff;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
             font-size: 2rem;
-            font-family: 'Playfair Display', serif;
             margin-bottom: 0.3rem;
+            color: #ffffff;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: 0.5px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            animation: fadeInUp 0.8s ease-out;
         }
 
         .logo-section p {
-            color: #f0f0f0;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-            font-size: 1.1rem;
-            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            letter-spacing: 0.3px;
+            animation: fadeInUp 1s ease-out;
         }
 
         .form-group {
+            width: 100%;
             margin-bottom: 0.8rem;
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .form-group:hover {
+            transform: translateY(-2px);
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.3rem;
             color: #ffffff;
             font-weight: 500;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
@@ -137,28 +165,29 @@
 
         .form-group input {
             width: 100%;
-            padding: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            height: 42px;
+            padding: 0 1rem;
+            border: 2px solid transparent;
             border-radius: 10px;
             background: rgba(255, 255, 255, 0.9);
             transition: all 0.3s ease;
             font-size: 1rem;
-            margin-top: 0.3rem;
         }
 
         .form-group input:focus {
             outline: none;
-            border-color: var(--primary);
-            background: #ffffff;
-            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
+            border-color: #ff6b6b;
+            box-shadow: 0 0 10px rgba(255, 107, 107, 0.2);
+            transform: translateY(-1px);
         }
 
         .remember-forgot {
-            margin: 0.5rem 0 1rem 0;
+            width: 100%;
+            margin: 0.5rem 0;
+            padding: 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.9rem;
         }
 
         .remember-me {
@@ -168,46 +197,60 @@
             color: #f0f0f0;
         }
 
+        .remember-me input[type="checkbox"] {
+            margin: 0;
+            cursor: pointer;
+        }
+
         .remember-me span {
+            font-size: 0.9rem;
             color: #f0f0f0;
         }
 
         .forgot-password {
             color: #ff6b6b;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
             text-decoration: none;
+            font-size: 0.9rem;
             transition: color 0.3s ease;
         }
 
         .forgot-password:hover {
-            color: #ff8787;
+            color: #ff8e53;
         }
 
         .login-btn {
             width: 100%;
-            padding: 1rem;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            height: 42px;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
             color: white;
             border: none;
             border-radius: 10px;
             font-size: 1.1rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            margin: 0.5rem 0;
+            margin: 0.8rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.4s ease;
         }
 
         .login-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+            background: linear-gradient(135deg, #ff8e53, #ff6b6b);
         }
 
         .divider {
             display: flex;
             align-items: center;
             margin: 0.8rem 0;
-            color: #f0f0f0;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            color: #000000;
             width: 100%;
+            animation: fadeInUp 1.3s ease-out;
         }
 
         .divider::before,
@@ -215,67 +258,114 @@
             content: '';
             flex: 1;
             height: 1px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.2);
         }
 
         .divider span {
             padding: 0 1rem;
             font-size: 0.9rem;
             white-space: nowrap;
-            color: #f0f0f0;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            color: #000000;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.2);
+            font-weight: 500;
         }
 
         .social-login {
             display: flex;
-            gap: 1rem;
             justify-content: center;
+            align-items: center;
+            gap: 1rem;
             margin: 0.8rem 0;
-            padding: 0.5rem 0;
             width: 100%;
+            flex-direction: row;
         }
 
         .social-btn {
-            width: 45px;
-            height: 45px;
+            width: 35px;
+            height: 35px;
             border-radius: 50%;
-            border: 1px solid rgba(255, 255, 255, 0.1);
             background: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-
-        .social-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .social-btn img {
             width: 20px;
             height: 20px;
+            object-fit: contain;
         }
 
         .signup-link {
-            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
             margin-top: 0.8rem;
-            color: #f0f0f0;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            color: #000000;
+            font-weight: 500;
+        }
+
+        .signup-link span {
+            color: #1a1a1a;
+            font-size: 0.95rem;
         }
 
         .signup-link a {
             color: #ff6b6b;
             text-decoration: none;
             font-weight: 600;
+            font-size: 0.95rem;
+            margin-left: 4px;
+            display: inline;
         }
 
-        .signup-link a:hover {
-            color: #ff8787;
+        .login-side .signup-link span {
+            color: #1a1a1a;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+        }
+
+        .login-side .signup-link a {
+            color: #ff6b6b;
+            font-weight: 600;
+        }
+
+        .signup-side .signup-link span {
+            color: #1a1a1a;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+        }
+
+        .signup-side .signup-link a {
+            color: #ff6b6b;
+            font-weight: 600;
+        }
+
+        .bottom-content {
+            margin-top: 0.5rem;
+            width: 100%;
+            padding-top: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         /* Animation for form elements */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         @keyframes fadeInUp {
             from {
                 opacity: 0;
@@ -304,8 +394,12 @@
         #signupForm {
             display: flex;
             flex-direction: column;
-            height: calc(100% - 160px);
-            padding: 0 0.5rem;
+            align-items: center;
+            padding: 0 3rem;
+            width: 100%;
+            max-width: 350px;
+            margin: 0 auto;
+            gap: 0.3rem;
         }
 
         /* Adjust content visibility */
@@ -319,10 +413,13 @@
             pointer-events: auto;
         }
 
-        /* Push social login and signup link to the bottom */
-        .bottom-content {
-            margin-top: auto;
-            padding-top: 0.5rem;
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
         }
     </style>
 </head>
@@ -374,9 +471,10 @@
                             </button>
                         </div>
 
-                        <p class="signup-link">
-                            Don't have an account? <a href="#" class="flip-to-signup">Sign up</a>
-                        </p>
+                        <div class="signup-link">
+                            <span>Don't have an account?</span>
+                            <a href="#" class="flip-to-signup">Sign up</a>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -422,9 +520,10 @@
                             </button>
                         </div>
 
-                        <p class="signup-link">
-                            Already have an account? <a href="#" class="flip-to-login">Sign in</a>
-                        </p>
+                        <div class="signup-link">
+                            <span>Already have an account?</span>
+                            <a href="#" class="flip-to-login">Sign in</a>
+                        </div>
                     </div>
                 </form>
             </div>
