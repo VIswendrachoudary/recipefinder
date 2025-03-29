@@ -6,6 +6,10 @@
     <link rel="icon" type="image/jpg" href="cooking.jpg">
     <title>Recipe Details - Recipe Finder</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-firestore-compat.js"></script>
     <style>
         :root {
             --primary: #FF6B6B;
@@ -776,7 +780,15 @@
     </div>
 
     <script>
-        const apiKey = "e86d004092814e04ad5d9545378e04ab";
+        const firebaseConfig = {
+            apiKey: "AIzaSyBG8Gs3dAK-hhQfNK40k9AhVXm7tX_ys7E",
+            authDomain: "recipe-finder-bab4d.firebaseapp.com",
+            projectId: "recipe-finder-bab4d",
+            storageBucket: "recipe-finder-bab4d.firebasestorage.app",
+            messagingSenderId: "734613259508",
+            appId: "1:734613259508:web:2e14e6db0f261b26974aa1",
+            measurementId: "G-GS4F63L1L3"
+        };
 
         document.addEventListener('DOMContentLoaded', () => {
             const recipeDetails = document.getElementById('recipeDetails');

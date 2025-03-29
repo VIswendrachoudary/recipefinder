@@ -425,7 +425,28 @@
         </form>
     </div>
 
+    <script src="https://apis.google.com/js/api.js"></script>
+    <!-- Add Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-storage-compat.js"></script>
     <script>
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBG8Gs3dAK-hhQfNK40k9AhVXm7tX_ys7E",
+            authDomain: "recipe-finder-bab4d.firebaseapp.com",
+            projectId: "recipe-finder-bab4d",
+            storageBucket: "recipe-finder-bab4d.firebasestorage.app",
+            messagingSenderId: "734613259508",
+            appId: "1:734613259508:web:2e14e6db0f261b26974aa1",
+            measurementId: "G-GS4F63L1L3"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
         function addIngredient() {
             const ingredientsList = document.getElementById('ingredientsList');
             const newIngredient = document.createElement('div');
@@ -452,11 +473,74 @@
             button.parentElement.remove();
         }
 
-        document.getElementById('recipeForm').addEventListener('submit', function(e) {
+        document.getElementById('recipeForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            // Add your form submission logic here
-            alert('Recipe submitted successfully!');
-            this.reset();
+            
+            try {
+                // Show loading state
+                const submitBtn = document.querySelector('.submit-btn');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = 'Adding Recipe...';
+
+                // Get form data
+                const recipeName = document.getElementById('recipeName').value;
+                const category = document.getElementById('category').value;
+                const prepTime = document.getElementById('prepTime').value;
+                const ingredients = Array.from(document.querySelectorAll('#ingredientsList input')).map(input => input.value);
+                const instructions = Array.from(document.querySelectorAll('#instructionsList textarea')).map(textarea => textarea.value);
+                const imageFile = document.getElementById('recipeImage').files[0];
+
+                // Upload image if provided
+                let imageUrl = '';
+                if (imageFile) {
+                    const storageRef = storage.ref(`recipe-images/${Date.now()}_${imageFile.name}`);
+                    await storageRef.put(imageFile);
+                    imageUrl = await storageRef.getDownloadURL();
+                }
+
+                // Create recipe object
+                const recipe = {
+                    name: recipeName,
+                    category: category,
+                    prepTime: parseInt(prepTime),
+                    ingredients: ingredients,
+                    instructions: instructions,
+                    imageUrl: imageUrl,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    userId: firebase.auth().currentUser?.uid || 'anonymous'
+                };
+
+                // Add to Firestore
+                await db.collection('recipes').add(recipe);
+
+                // Show success message
+                submitBtn.innerHTML = '✅ Recipe Added!';
+                submitBtn.style.backgroundColor = '#4CAF50';
+                
+                // Reset form
+                setTimeout(() => {
+                    this.reset();
+                    // Clear dynamically added ingredients and instructions
+                    const ingredientsList = document.getElementById('ingredientsList');
+                    const instructionsList = document.getElementById('instructionsList');
+                    while (ingredientsList.children.length > 1) {
+                        ingredientsList.removeChild(ingredientsList.lastChild);
+                    }
+                    while (instructionsList.children.length > 1) {
+                        instructionsList.removeChild(instructionsList.lastChild);
+                    }
+                    // Reset button
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Add Recipe';
+                    submitBtn.style.backgroundColor = '';
+                }, 2000);
+
+            } catch (error) {
+                console.error('Error adding recipe:', error);
+                alert('Sorry, there was an error adding your recipe. Please try again!');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Add Recipe';
+            }
         });
 
         // Add remove functionality to initial buttons
