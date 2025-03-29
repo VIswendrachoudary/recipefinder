@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/jpg" href="cooking.jpg">
+    <title>Recipe Details - Recipe Finder</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #FF8E53;
+            --accent: #FFE66D;
+            --dark: #2C3E50;
+            --light: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #FFE5E5 0%, #FFD1D1 25%, #FFF3E0 50%, #FFF8E7 75%, #FFE5E5 100%);
+            min-height: 100vh;
+            padding-top: 80px;
+            color: var(--dark);
+        }
+
+        .main-header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            padding: 1rem 4%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+        }
+
+        .logo-section img {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            border: 2px solid rgba(255, 107, 107, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            color: var(--primary);
+            transform: translateX(-5px);
+            border-color: var(--primary);
+            background: rgba(255, 107, 107, 0.05);
+        }
+
+        .recipe-details {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .recipe-header {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .recipe-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .recipe-info {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .recipe-title {
+            font-size: 2.5rem;
+            color: var(--dark);
+            margin-bottom: 1rem;
+        }
+
+        .recipe-meta {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--dark);
+            font-size: 1.1rem;
+        }
+
+        .ingredients-section, .instructions-section {
+            margin-top: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            color: var(--dark);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .ingredients-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .ingredient-item {
+            background: rgba(255, 255, 255, 0.5);
+            padding: 1rem;
+            border-radius: 10px;
+            display: grid;
+            grid-template-columns: 40px 60px 1fr;
+            gap: 1rem;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .ingredient-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .ingredient-checkbox {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            position: relative;
+            appearance: none;
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.8);
+            border: 2px solid var(--primary);
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            margin: 0;
+            padding: 0;
+        }
+
+        .ingredient-checkbox:checked {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .ingredient-checkbox:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .ingredient-checkbox:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
+        }
+
+        .ingredient-checkbox:checked:hover {
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.4);
+        }
+
+        .ingredient-checkbox:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.3);
+        }
+
+        .ingredient-checkbox:checked:focus {
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.5);
+        }
+
+        .ingredient-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .ingredients-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 12px;
+        }
+
+        .selected-count {
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .add-selected-btn {
+            background: linear-gradient(135deg, #7FD8A6, #92E6B7);
+            color: var(--dark);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .add-selected-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(127, 216, 166, 0.3);
+        }
+
+        .add-selected-btn:active {
+            transform: translateY(0);
+        }
+
+        .add-selected-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .instructions-list {
+            list-style: none;
+            counter-reset: step;
+            margin-top: 1.5rem;
+        }
+
+        .instruction-step {
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            position: relative;
+            padding-left: 3.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .instruction-step:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .instruction-step::before {
+            counter-increment: step;
+            content: counter(step);
+            position: absolute;
+            left: 1rem;
+            top: 1.5rem;
+            width: 2rem;
+            height: 2rem;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .action-btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .youtube-btn {
+            background: #FF0000;
+            color: white;
+        }
+
+        .youtube-btn:hover {
+            background: #CC0000;
+            transform: translateY(-2px);
+        }
+
+        .favorite-btn {
+            background: var(--primary);
+            color: white;
+        }
+
+        .favorite-btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        .favorite-btn.active {
+            background: var(--secondary);
+        }
+
+        @media (max-width: 768px) {
+            .main-header {
+                padding: 1rem;
+            }
+
+            .nav-links {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            }
+            
+            .hamburger-menu {
+                display: flex !important;
+                margin-left: 1rem;
+            }
+
+            .nav-links .nav-button:not(.add-recipe) {
+                display: none;
+            }
+
+            .mobile-nav {
+                display: flex;
+            }
+
+            .mobile-nav.active {
+                right: 0;
+            }
+        }
+
+        .hamburger-menu {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 24px;
+            cursor: pointer;
+            z-index: 1001;
+            padding: 4px;
+            margin-left: 1rem;
+            background: transparent;
+            border-radius: 4px;
+        }
+
+        .hamburger-menu span {
+            display: block;
+            width: 100%;
+            height: 3px;
+            background-color: var(--dark);
+            transition: all 0.3s ease;
+            border-radius: 3px;
+            margin: 2px 0;
+        }
+
+        @media (min-width: 769px) {
+            .hamburger-menu {
+                display: none;
+            }
+        }
+
+        .mobile-nav {
+            position: fixed;
+            top: 80px;
+            right: -100%;
+            width: 250px;
+            height: auto;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+            transition: right 0.3s ease;
+            z-index: 1000;
+            box-shadow: -5px 0 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            border-radius: 0 0 0 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .mobile-nav.active {
+            right: 0;
+        }
+
+        .mobile-nav .nav-button {
+            width: 100%;
+            text-align: left;
+            padding: 1rem 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            border-radius: 12px;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 0.95rem;
+            color: var(--dark);
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .mobile-nav .nav-button.search-btn {
+            background: linear-gradient(135deg, #7FD8A6, #92E6B7);
+            color: var(--dark);
+            border: none;
+            font-weight: 600;
+        }
+
+        .mobile-nav .nav-button.ai-btn {
+            background: linear-gradient(135deg, #B4A7FF, #FFB4E6);
+            color: var(--dark);
+            border: none;
+            font-weight: 600;
+        }
+
+        .mobile-nav .nav-button.recently-btn {
+            background: linear-gradient(135deg, #FFB4A7, #FFCBA7);
+            color: var(--dark);
+            border: none;
+            font-weight: 600;
+        }
+
+        .mobile-nav .nav-button.favorites-btn {
+            background: linear-gradient(135deg, #FF9E9E, #FFB4B4);
+            color: var(--dark);
+            border: none;
+            font-weight: 600;
+        }
+
+        .mobile-nav .nav-button.shopping-btn {
+            background: linear-gradient(135deg, #7FD8A6, #92E6B7);
+            color: var(--dark);
+            border: none;
+            font-weight: 600;
+        }
+
+        .mobile-nav .nav-button.logout-btn {
+            background: linear-gradient(135deg, #A7D8FF, #B4E6FF);
+            color: var(--dark);
+            border: none;
+            font-weight: 600;
+        }
+
+        .mobile-nav .nav-button:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            opacity: 0.95;
+        }
+
+        .mobile-nav .nav-button:active {
+            transform: translateX(5px) scale(0.98);
+        }
+
+        .mobile-nav .section-divider {
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.1), transparent);
+            margin: 0.5rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .recipe-header {
+                grid-template-columns: 1fr;
+            }
+
+            .recipe-image {
+                height: 250px;
+            }
+
+            .recipe-title {
+                font-size: 2rem;
+            }
+
+            .recipe-meta {
+                flex-wrap: wrap;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+        }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            color: var(--dark);
+            font-size: 1.8rem;
+            margin: 0;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .clear-all-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .clear-all-btn:hover {
+            background: rgba(255, 107, 107, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            color: var(--dark);
+            cursor: pointer;
+            padding: 0.5rem;
+            line-height: 1;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: var(--primary);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .shopping-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 12px;
+            margin-bottom: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .shopping-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .item-name {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .item-amount {
+            color: var(--dark);
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        .item-recipe {
+            color: var(--dark);
+            opacity: 0.6;
+            font-size: 0.8rem;
+            font-style: italic;
+        }
+
+        .shopping-item .remove-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            line-height: 1;
+            transition: all 0.3s ease;
+        }
+
+        .shopping-item .remove-btn:hover {
+            color: var(--secondary);
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                margin: 1rem;
+            }
+
+            .modal-header h2 {
+                font-size: 1.5rem;
+            }
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .nav-button {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .nav-button.add-recipe {
+            background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
+
+        .nav-button.add-recipe:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .hamburger-menu.active span:nth-child(1) {
+            transform: translateY(8px) rotate(45deg);
+        }
+
+        .hamburger-menu.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger-menu.active span:nth-child(3) {
+            transform: translateY(-8px) rotate(-45deg);
+        }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="logo-section">
+            <img src="/cooking.jpg" alt="Recipe Finder Logo" onerror="this.onerror=null; this.src='cooking.jpg'; console.log('Logo image failed to load, trying relative path');">
+            <h2>Recipe Finder</h2>
+        </div>
+        <div class="nav-links">
+            <a href="add-recipe.html" class="nav-button add-recipe">Add Recipe</a>
+            <div class="hamburger-menu" onclick="toggleMobileMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+        <div class="mobile-nav">
+            <a href="#" class="nav-button search-btn" onclick="showSearchModal()">
+                🔍 Search Recipes
+            </a>
+            <a href="ai-recipe-finder.html" class="nav-button ai-btn">
+                🤖 AI Recipe Generator
+            </a>
+            <div class="section-divider"></div>
+            <a href="recently-viewed.html" class="nav-button recently-btn">
+                🕒 Recently Viewed
+            </a>
+            <a href="favorites.html" class="nav-button favorites-btn">
+                ❤️ Favorites
+            </a>
+            <a href="#" class="nav-button shopping-btn" onclick="showShoppingList()">
+                🛒 Shopping List
+            </a>
+            <div class="section-divider"></div>
+            <a href="index.html" class="nav-button logout-btn">
+                🚪 Logout
+            </a>
+        </div>
+    </header>
+
+    <div class="container">
+        <a href="#" class="back-button" onclick="goBack()">
+            ← Back 
+        </a>
+        
+        <div class="recipe-details" id="recipeDetails">
+            <!-- Recipe content will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <script>
+        const apiKey = "e86d004092814e04ad5d9545378e04ab";
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const recipeDetails = document.getElementById('recipeDetails');
+            
+            // Get recipe data from localStorage
+            const recipe = JSON.parse(localStorage.getItem('currentRecipe'));
+            
+            if (!recipe) {
+                recipeDetails.innerHTML = '<p class="error-message">Recipe not found. Please go back and try again.</p>';
+                return;
+            }
+
+            // Create recipe HTML
+            const recipeHTML = `
+                <div class="recipe-header">
+                    <img src="${recipe.image}" alt="${recipe.title}" class="recipe-image">
+                    <div class="recipe-info">
+                        <h1 class="recipe-title">${recipe.title}</h1>
+                        <div class="recipe-meta">
+                            <span class="meta-item">⏱️ Ready in ${recipe.readyInMinutes} minutes</span>
+                            <span class="meta-item">👥 Servings: ${recipe.servings}</span>
+                        </div>
+                        <p>${recipe.summary
+                            .split('.')
+                            .filter(sentence => {
+                                const lowerSentence = sentence.toLowerCase().trim();
+                                return lowerSentence.length > 0 && 
+                                    !lowerSentence.includes('similar') &&
+                                    !lowerSentence.includes('like this') &&
+                                    !lowerSentence.includes('try these') &&
+                                    !lowerSentence.includes('you might also') &&
+                                    !lowerSentence.includes('check out') &&
+                                    !lowerSentence.includes('try this') &&
+                                    !lowerSentence.includes('other recipes') &&
+                                    !lowerSentence.includes('recipes like') &&
+                                    !lowerSentence.includes('alternative to') &&
+                                    !lowerSentence.includes('if you like') &&
+                                    !lowerSentence.includes('you can find') &&
+                                    !lowerSentence.includes('variations of');
+                            })
+                            .join('. ')
+                            .replace(/<\/?[^>]+(>|$)/g, '')}.</p>
+                        <div class="action-buttons">
+                            <button onclick="searchYouTube('${recipe.title} recipe')" class="action-btn youtube-btn">
+                                🎥 Watch on YouTube
+                            </button>
+                            <button onclick="toggleFavorite(${recipe.id})" class="action-btn favorite-btn" id="favoriteBtn">
+                                🤍 Add to Favorites
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ingredients-section">
+                    <div class="ingredients-header">
+                        <h2 class="section-title">🥑 Ingredients</h2>
+                    </div>
+                    <div class="ingredients-grid">
+                        ${recipe.extendedIngredients.map(ingredient => `
+                            <div class="ingredient-item">
+                                <input type="checkbox" class="ingredient-checkbox" id="ingredient-${ingredient.id}" data-id="${ingredient.id}">
+                                <img 
+                                    src="https://spoonacular.com/cdn/ingredients_100x100/${ingredient.image}" 
+                                    alt="${ingredient.name}"
+                                    class="ingredient-image"
+                                    onerror="this.src='https://via.placeholder.com/60?text=🥘'"
+                                >
+                                <span class="ingredient-text">${ingredient.original}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="ingredients-actions">
+                        <span class="selected-count">Selected: <span id="selectedCount">0</span> ingredients</span>
+                        <button onclick="addSelectedToShoppingList()" class="add-selected-btn" id="addSelectedBtn" disabled>
+                            🛒 Add Selected to Shopping List
+                        </button>
+                    </div>
+                </div>
+
+                <div class="instructions-section">
+                    <h2 class="section-title">📝 Instructions</h2>
+                    <div class="instructions-list">
+                        ${recipe.analyzedInstructions[0]?.steps.map(step => `
+                            <div class="instruction-step">${step.step}</div>
+                        `).join('') || '<div class="instruction-step">No instructions available.</div>'}
+                    </div>
+                </div>
+            `;
+
+            recipeDetails.innerHTML = recipeHTML;
+
+            // Add event listeners for checkboxes
+            const checkboxes = document.querySelectorAll('.ingredient-checkbox');
+            const selectedCount = document.getElementById('selectedCount');
+            const addSelectedBtn = document.getElementById('addSelectedBtn');
+
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', () => {
+                    const count = document.querySelectorAll('.ingredient-checkbox:checked').length;
+                    selectedCount.textContent = count;
+                    addSelectedBtn.disabled = count === 0;
+                });
+            });
+
+            // Check if recipe is in favorites and update button
+            const favorites = JSON.parse(localStorage.getItem('favoriteRecipes')) || [];
+            const isFavorited = favorites.some(fav => fav.id === recipe.id);
+            const favoriteBtn = document.getElementById('favoriteBtn');
+            if (isFavorited) {
+                favoriteBtn.innerHTML = '❤️ Favorited';
+                favoriteBtn.classList.add('active');
+            }
+        });
+
+        function toggleFavorite(recipeId) {
+            const favorites = JSON.parse(localStorage.getItem('favoriteRecipes')) || [];
+            const recipe = JSON.parse(localStorage.getItem('currentRecipe'));
+            const btn = document.getElementById('favoriteBtn');
+            
+            const index = favorites.findIndex(fav => fav.id === recipeId);
+            
+            if (index === -1) {
+                // Add to favorites
+                favorites.push({
+                    id: recipe.id,
+                    title: recipe.title,
+                    image: recipe.image,
+                    readyInMinutes: recipe.readyInMinutes,
+                    servings: recipe.servings
+                });
+                btn.innerHTML = '❤️ Favorited';
+                btn.classList.add('active');
+            } else {
+                // Remove from favorites
+                favorites.splice(index, 1);
+                btn.innerHTML = '🤍 Add to Favorites';
+                btn.classList.remove('active');
+            }
+            
+            localStorage.setItem('favoriteRecipes', JSON.stringify(favorites));
+        }
+
+        function searchYouTube(query) {
+            window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`, '_blank');
+        }
+
+        function goBack() {
+            const referrer = document.referrer;
+            if (referrer.includes('search-results.html')) {
+                window.history.back();
+            } else {
+                window.location.href = 'home.html';
+            }
+        }
+
+        function toggleMobileMenu() {
+            const hamburger = document.querySelector('.hamburger-menu');
+            const mobileNav = document.querySelector('.mobile-nav');
+            
+            hamburger.classList.toggle('active');
+            mobileNav.classList.toggle('active');
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            const hamburger = document.querySelector('.hamburger-menu');
+            const mobileNav = document.querySelector('.mobile-nav');
+            
+            if (!e.target.closest('.hamburger-menu') && 
+                !e.target.closest('.mobile-nav') && 
+                mobileNav.classList.contains('active')) {
+                hamburger.classList.remove('active');
+                mobileNav.classList.remove('active');
+            }
+        });
+
+        function showSearchModal() {
+            // Close the mobile menu
+            const hamburger = document.querySelector('.hamburger-menu');
+            const mobileNav = document.querySelector('.mobile-nav');
+            hamburger.classList.remove('active');
+            mobileNav.classList.remove('active');
+
+            // Redirect to home page with search focus
+            window.location.href = 'home.html#searchContainer';
+        }
+
+        function addSelectedToShoppingList() {
+            const recipe = JSON.parse(localStorage.getItem('currentRecipe'));
+            const shoppingList = JSON.parse(localStorage.getItem('shoppingList')) || [];
+            const selectedCheckboxes = document.querySelectorAll('.ingredient-checkbox:checked');
+            
+            selectedCheckboxes.forEach(checkbox => {
+                const ingredientId = parseInt(checkbox.dataset.id);
+                const ingredient = recipe.extendedIngredients.find(ing => ing.id === ingredientId);
+                
+                if (ingredient && !shoppingList.some(item => item.id === ingredientId)) {
+                    shoppingList.push({
+                        id: ingredient.id,
+                        name: ingredient.name,
+                        amount: ingredient.amount,
+                        unit: ingredient.unit,
+                        aisle: ingredient.aisle,
+                        recipeName: recipe.title
+                    });
+                }
+            });
+            
+            localStorage.setItem('shoppingList', JSON.stringify(shoppingList));
+            
+            // Update button state
+            const btn = document.getElementById('addSelectedBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '✅ Added to Shopping List';
+            btn.disabled = true;
+            
+            // Reset button after 2 seconds
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }, 2000);
+
+            // Uncheck all checkboxes
+            document.querySelectorAll('.ingredient-checkbox').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            document.getElementById('selectedCount').textContent = '0';
+        }
+
+        function showShoppingList() {
+            // Close the mobile menu
+            const hamburger = document.querySelector('.hamburger-menu');
+            const mobileNav = document.querySelector('.mobile-nav');
+            hamburger.classList.remove('active');
+            mobileNav.classList.remove('active');
+
+            // Show shopping list modal
+            const shoppingList = JSON.parse(localStorage.getItem('shoppingList')) || [];
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>🛒 Shopping List</h2>
+                        <div class="modal-actions">
+                            ${shoppingList.length > 0 ? `
+                                <button onclick="clearAllShoppingList()" class="clear-all-btn">
+                                    🗑️ Clear All
+                                </button>
+                            ` : ''}
+                            <button onclick="this.closest('.modal').remove()" class="close-btn">×</button>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        ${shoppingList.length === 0 ? 
+                            '<p class="empty-state-text">Your shopping list is empty</p>' :
+                            shoppingList.map(item => `
+                                <div class="shopping-item">
+                                    <div class="item-info">
+                                        <span class="item-name">${item.name}</span>
+                                        <span class="item-amount">${item.amount} ${item.unit}</span>
+                                        <span class="item-recipe">from ${item.recipeName}</span>
+                                    </div>
+                                    <button onclick="removeFromShoppingList(${item.id})" class="remove-btn">×</button>
+                                </div>
+                            `).join('')}
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function removeFromShoppingList(itemId) {
+            const shoppingList = JSON.parse(localStorage.getItem('shoppingList')) || [];
+            const updatedList = shoppingList.filter(item => item.id !== itemId);
+            localStorage.setItem('shoppingList', JSON.stringify(updatedList));
+            
+            // Remove the modal and show the updated list
+            const modal = document.querySelector('.modal');
+            modal.remove();
+            showShoppingList();
+        }
+
+        function clearAllShoppingList() {
+            if (confirm('Are you sure you want to clear your shopping list?')) {
+                localStorage.setItem('shoppingList', JSON.stringify([]));
+                const modal = document.querySelector('.modal');
+                modal.remove();
+                showShoppingList();
+            }
+        }
+    </script>
+</body>
+</html> 
