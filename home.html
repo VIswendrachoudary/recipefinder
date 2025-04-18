@@ -7,9 +7,12 @@
     <title>Recipe Finder </title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="recently-viewed.js"></script>
     <script>
         // Your Firebase configuration
         const firebaseConfig = {
@@ -27,13 +30,27 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        // Check authentication state
-        auth.onAuthStateChanged((user) => {
-            if (!user) {
+        // Function to initialize favorites collection for a new user
+        async function initializeUserFavorites(userId) {
+            try {
+                const userRef = db.collection('users').doc(userId);
+                await userRef.set({
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                console.log('User document initialized');
+            } catch (error) {
+                console.error('Error initializing user:', error);
+            }
+        }
+
+        // Check authentication state and initialize user data
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                console.log('User is logged in:', user);
+                await initializeUserFavorites(user.uid);
+            } else {
                 console.log('No user is logged in, redirecting to login page.');
                 window.location.href = 'index.html';
-            } else {
-                console.log('User is logged in:', user);
             }
         });
 
@@ -2180,9 +2197,42 @@
                 display: flex;
             }
 
-            .nav-links .nav-button:not(.add-recipe) {
+            .nav-links .nav-button {
                 display: none;
             }
+        }
+
+        /* Add styles for favorite button */
+        .recipe-image-container {
+            position: relative;
+        }
+        
+        .favorite-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .favorite-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+        }
+
+        .favorite-btn.active {
+            background: rgba(255, 107, 107, 0.9);
+            color: white;
         }
     </style>
 </head>
@@ -2197,7 +2247,6 @@
             <h2>Recipe Finder</h2>
         </div>
         <div class="nav-links">
-            <a href="add-recipe.html" class="nav-button add-recipe">Add Recipe</a>
             <div class="hamburger-menu" onclick="toggleMobileMenu()">
                 <span></span>
                 <span></span>
@@ -2222,7 +2271,7 @@
                 🛒 Shopping List
             </a>
             <div class="section-divider"></div>
-            <a href="#" class="nav-button logout-btn" onclick="handleLogout(); return false;">
+            <a href="index.html" class="nav-button logout-btn">
                 🚪 Logout
             </a>
         </div>
@@ -2441,10 +2490,10 @@
             }
         }
 
-        // Update the searchTag function to also redirect
+        // Update the searchTag function to redirect to search results page
         function searchTag(category) {
-            // Redirect to search results page with the category
-            window.location.href = `search-results.html?category=${encodeURIComponent(category)}`;
+            // Redirect to search results page with the category as query parameter
+            window.location.href = `search-results.html?q=${encodeURIComponent(category)}`;
         }
 
         function returnHome() {
@@ -2460,6 +2509,9 @@
                 <div class="recipe-card" style="animation-delay: ${index * 0.1}s">
                     <div class="recipe-image-container">
                         <img src="${meal.image}" class="recipe-image" alt="${meal.title}">
+                        <button onclick="toggleFavorite(event, ${meal.id})" class="favorite-btn" id="fav-${meal.id}">
+                            ❤️
+                        </button>
                     </div>
                     <div class="recipe-content">
                         <h3 class="recipe-title">${meal.title}</h3>
@@ -2467,78 +2519,38 @@
                     </div>
                 </div>
             `).join('');
+
+            // Check favorite status for each recipe
+            meals.forEach(meal => {
+                checkIfFavorite(meal.id).then(isFavorite => {
+                    const favBtn = document.getElementById(`fav-${meal.id}`);
+                    if (favBtn) {
+                        favBtn.classList.toggle('active', isFavorite);
+                        favBtn.textContent = isFavorite ? '❤️' : '🤍';
+                    }
+                });
+            });
         }
 
         async function showRecipeDetails(recipeId) {
             try {
-                const recipeDetails = await fetchRecipeDetails(recipeId);
-                displayRecipeDetails(recipeDetails);
-            } catch (error) {
-                console.error("Error showing recipe details:", error);
-            }
-        }
-
-        async function fetchRecipeDetails(recipeId) {
-            try {
-                // We'll just fetch recipe info since the video endpoint isn't reliable
-                const infoResponse = await fetch(
+                const response = await fetch(
                     `https://api.spoonacular.com/recipes/${recipeId}/information?apiKey=${apiKey}`
                 );
                 
-                if (!infoResponse.ok) throw new Error('Recipe info fetch failed');
-                const recipeInfo = await infoResponse.json();
-
-                return recipeInfo;
+                if (!response.ok) throw new Error('Recipe info fetch failed');
+                const recipe = await response.json();
+                
+                // Add to recently viewed
+                addToRecentlyViewed(recipe);
+                
+                // Store current recipe for details page
+                localStorage.setItem('currentRecipe', JSON.stringify(recipe));
+                window.location.href = 'recipe-details.html';
             } catch (error) {
-                console.error("Fetch details error:", error);
-                return { error: error.message };
+                console.error("Error showing recipe details:", error);
+                alert('Error loading recipe details. Please try again.');
             }
-        }
-
-        async function displayRecipeDetails(recipe) {
-            if (recipe.error) {
-                alert(`Error loading recipe: ${recipe.error}`);
-                return;
-            }
-
-            document.getElementById("ingredientsGrid").innerHTML = '';
-            document.getElementById("instructions").innerHTML = '';
-
-            document.getElementById("modalTitle").textContent = recipe.title;
-            
-            // Try to get image from recipe API first
-            let imageUrl = recipe.image;
-            
-            // If no image from API, try Google Custom Search
-            if (!imageUrl) {
-                try {
-                    const searchQuery = encodeURIComponent(recipe.title + ' food recipe');
-                    const response = await fetch(`https://customsearch.googleapis.com/customsearch/v1?key=YOUR_GOOGLE_API_KEY&cx=YOUR_SEARCH_ENGINE_ID&q=${searchQuery}&searchType=image&num=1`);
-                    const data = await response.json();
-                    
-                    if (data.items && data.items[0] && data.items[0].link) {
-                        imageUrl = data.items[0].link;
-                    }
-                } catch (error) {
-                    console.error('Error fetching image:', error);
-                    imageUrl = 'https://via.placeholder.com/400x300?text=No+Image+Available';
-                }
-            }
-            
-            document.getElementById("modalImage").src = imageUrl || 'https://via.placeholder.com/400x300?text=No+Image+Available';
-            
-            if (recipe.extendedIngredients) {
-                displayIngredients(recipe.extendedIngredients);
-            }
-            
-            if (recipe.analyzedInstructions?.length) {
-                displayInstructions(recipe.analyzedInstructions[0].steps, recipe.title);
-            } else {
-                displayInstructions(null, recipe.title);
-            }
-            
-            modal.style.display = "flex";
-            document.body.style.overflow = "hidden";
         }
 
         function displayInstructions(steps, recipeTitle) {  // Add recipeTitle parameter
@@ -2767,6 +2779,168 @@
             const modal = document.getElementById('shoppingListModal');
             if (event.target === modal) {
                 closeShoppingList();
+            }
+        }
+
+        // Add favorites functionality
+        async function addToFavorites(recipe) {
+            try {
+                // Get current user
+                const user = auth.currentUser;
+                if (!user) {
+                    alert('Please log in to add favorites');
+                    return;
+                }
+
+                // Reference to user's favorites collection
+                const favoritesRef = db.collection('users').doc(user.uid).collection('favorites');
+                
+                // Add the recipe to favorites
+                await favoritesRef.doc(recipe.id.toString()).set({
+                    recipeId: recipe.id,
+                    title: recipe.title,
+                    image: recipe.image,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                console.log('Added to favorites successfully');
+            } catch (error) {
+                console.error('Error adding to favorites:', error);
+            }
+        }
+
+        async function removeFromFavorites(recipeId) {
+            try {
+                const user = auth.currentUser;
+                if (!user) {
+                    alert('Please log in to remove favorites');
+                    return;
+                }
+
+                const favoritesRef = db.collection('users').doc(user.uid).collection('favorites');
+                await favoritesRef.doc(recipeId.toString()).delete();
+
+                console.log('Recipe removed from favorites:', recipeId);
+                alert('Recipe removed from favorites!');
+            } catch (error) {
+                console.error('Error removing from favorites:', error);
+                alert('Error removing from favorites. Please try again.');
+            }
+        }
+
+        async function checkIfFavorite(recipeId) {
+            try {
+                const user = auth.currentUser;
+                if (!user) return false;
+
+                const favoriteDoc = await db.collection('users').doc(user.uid)
+                    .collection('favorites').doc(recipeId.toString()).get();
+
+                return favoriteDoc.exists;
+            } catch (error) {
+                console.error('Error checking favorite status:', error);
+                return false;
+            }
+        }
+
+        // Function to test adding a sample favorite
+        async function addSampleFavorite() {
+            const sampleRecipe = {
+                id: '123456',
+                title: 'Sample Recipe',
+                image: 'https://example.com/sample-image.jpg'
+            };
+            await addToFavorites(sampleRecipe);
+            console.log('Sample favorite added');
+        }
+
+        // Add this to your existing toggleFavorite function
+        async function toggleFavorite(event, recipeId) {
+            event.stopPropagation();
+            const favBtn = document.getElementById(`fav-${recipeId}`);
+            const isFavorite = await checkIfFavorite(recipeId);
+
+            try {
+                const response = await fetch(
+                    `https://api.spoonacular.com/recipes/${recipeId}/information?apiKey=${apiKey}`
+                );
+                
+                if (!response.ok) throw new Error('Recipe info fetch failed');
+                const recipe = await response.json();
+
+                if (isFavorite) {
+                    await removeFromFavorites(recipeId);
+                    favBtn.textContent = '🤍';
+                    favBtn.classList.remove('active');
+                } else {
+                    await addToFavorites(recipe);
+                    favBtn.textContent = '❤️';
+                    favBtn.classList.add('active');
+                }
+            } catch (error) {
+                console.error('Error toggling favorite:', error);
+                alert('Error updating favorites. Please try again.');
+            }
+        }
+
+        // Add favorites functionality
+        async function checkFavoritesData() {
+            try {
+                const user = auth.currentUser;
+                if (!user) {
+                    console.log('No user is logged in');
+                    return;
+                }
+
+                const favoritesRef = db.collection('users').doc(user.uid).collection('favorites');
+                const snapshot = await favoritesRef.get();
+                
+                console.log('Current user ID:', user.uid);
+                console.log('Number of favorites:', snapshot.size);
+                
+                snapshot.forEach(doc => {
+                    console.log('Favorite recipe:', doc.id, doc.data());
+                });
+            } catch (error) {
+                console.error('Error checking favorites:', error);
+            }
+        }
+
+        // Call this function when page loads
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                console.log('User is logged in:', user);
+                checkFavoritesData(); // Check favorites data
+            } else {
+                console.log('No user is logged in, redirecting to login page.');
+                window.location.href = 'index.html';
+            }
+        });
+
+        async function readFromFirebase() {
+            try {
+                const user = auth.currentUser;
+                const snapshot = await db.collection('users')
+                    .doc(user.uid)
+                    .collection('favorites')
+                    .get();
+                    
+                snapshot.forEach(doc => {
+                    console.log('Document data:', doc.data());
+                });
+            } catch (error) {
+                console.error('Error reading data:', error);
+            }
+        }
+
+        async function updateInFirebase(docId, newData) {
+            try {
+                await db.collection('collectionName')
+                    .doc(docId)
+                    .update(newData);
+                console.log('Document updated successfully');
+            } catch (error) {
+                console.error('Error updating document:', error);
             }
         }
     </script>

@@ -391,12 +391,16 @@
             }
 
             .nav-links {
-                gap: 0.5rem;
+                display: flex;
+                align-items: center;
+            }
+            
+            .hamburger-menu {
+                display: flex;
             }
 
-            .nav-button {
-                padding: 0.6rem 1rem;
-                font-size: 0.8rem;
+            .nav-links .nav-button {
+                display: none;
             }
         }
 
@@ -525,21 +529,6 @@
             background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.1), transparent);
             margin: 0.5rem 0;
         }
-
-        @media (max-width: 768px) {
-            .nav-links {
-                display: flex;
-                align-items: center;
-            }
-            
-            .hamburger-menu {
-                display: flex;
-            }
-
-            .nav-links .nav-button:not(.add-recipe) {
-                display: none;
-            }
-        }
     </style>
 </head>
 <body>
@@ -555,7 +544,6 @@
             <h2>Recipe Finder</h2>
         </div>
         <nav class="nav-links">
-            <a href="add-recipe.html" class="nav-button add-recipe">Add Recipe</a>
             <div class="hamburger-menu" onclick="toggleMobileMenu()">
                 <span></span>
                 <span></span>
@@ -577,7 +565,7 @@
                 ❤️ Favorites
             </a>
             <div class="section-divider"></div>
-            <a href="index.html" class="nav-button logout-btn">
+            <a href="#" class="nav-button logout-btn" onclick="handleLogout(); return false;">
                 🚪 Logout
             </a>
         </div>
@@ -595,59 +583,13 @@
         </div>
     </div>
 
+    <script src="recently-viewed.js"></script>
     <script>
-        function displayRecentlyViewed() {
-            const recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed')) || [];
-            const recentlyViewedGrid = document.getElementById('recentlyViewedGrid');
-            
-            if (recentlyViewed.length === 0) {
-                recentlyViewedGrid.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">👀</div>
-                        <div class="empty-state-text">
-                            No recently viewed recipes yet.<br>
-                            Start exploring recipes to see your history!
-                        </div>
-                    </div>
-                `;
-                return;
-            }
-            
-            recentlyViewedGrid.innerHTML = recentlyViewed.map((recipe, index) => `
-                <div class="recipe-card" style="animation-delay: ${index * 0.1}s">
-                    <img src="${recipe.image}" alt="${recipe.title}" class="recipe-image">
-                    <div class="recipe-info">
-                        <h3 class="recipe-name">${recipe.title}</h3>
-                        <div class="recipe-meta">
-                            <span>⏱️ ${recipe.readyInMinutes} mins</span>
-                            <span>👥 ${recipe.servings} servings</span>
-                        </div>
-                        <a href="#" class="view-recipe-btn" onclick="showRecipeDetails(${recipe.id})">View Recipe</a>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        async function showRecipeDetails(recipeId) {
-            try {
-                const response = await fetch(
-                    `https://api.spoonacular.com/recipes/${recipeId}/information?apiKey=e86d004092814e04ad5d9545378e04ab`
-                );
-                
-                if (!response.ok) throw new Error('Recipe info fetch failed');
-                const recipe = await response.json();
-                
-                localStorage.setItem('currentRecipe', JSON.stringify(recipe));
-                window.location.href = 'recipe-details.html';
-            } catch (error) {
-                console.error("Error showing recipe details:", error);
-                alert('Error loading recipe details. Please try again.');
-            }
-        }
-
         // Initialize the page
         document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(displayRecentlyViewed, 500); // Add a small delay to show loading animation
+            setTimeout(() => {
+                displayRecentlyViewed('recentlyViewedGrid');
+            }, 500); // Add a small delay to show loading animation
         });
 
         function toggleMobileMenu() {

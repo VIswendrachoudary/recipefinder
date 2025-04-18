@@ -6,6 +6,9 @@
     <link rel="icon" type="image/jpg" href="cooking.jpg">
     <title>Search Results - Recipe Finder</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
     <style>
         :root {
             --primary: #FF6B6B;
@@ -905,7 +908,7 @@
                 display: flex;
             }
 
-            .nav-links .nav-button:not(.add-recipe) {
+            .nav-links .nav-button {
                 display: none;
             }
         }
@@ -926,7 +929,6 @@
             <h2>Recipe Finder</h2>
         </div>
         <nav class="nav-links">
-            <a href="add-recipe.html" class="nav-button add-recipe">Add Recipe</a>
             <div class="hamburger-menu" onclick="toggleMobileMenu()">
                 <span></span>
                 <span></span>
@@ -978,6 +980,7 @@
         <div class="recipe-grid" id="recipeGrid"></div>
     </div>
 
+    <script src="recently-viewed.js"></script>
     <script>
         const apiKey = "e86d004092814e04ad5d9545378e04ab";
         const recipeGrid = document.getElementById("recipeGrid");
@@ -1062,8 +1065,11 @@
                 
                 if (!response.ok) throw new Error('Recipe info fetch failed');
                 const recipe = await response.json();
-
-                // Store recipe details in localStorage for the recipe details page
+                
+                // Add to recently viewed
+                addToRecentlyViewed(recipe);
+                
+                // Store current recipe for details page
                 localStorage.setItem('currentRecipe', JSON.stringify(recipe));
                 window.location.href = 'recipe-details.html';
             } catch (error) {

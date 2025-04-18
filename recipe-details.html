@@ -365,15 +365,13 @@
             .nav-links {
                 display: flex;
                 align-items: center;
-                gap: 1rem;
             }
             
             .hamburger-menu {
-                display: flex !important;
-                margin-left: 1rem;
+                display: flex;
             }
 
-            .nav-links .nav-button:not(.add-recipe) {
+            .nav-links .nav-button {
                 display: none;
             }
 
@@ -738,7 +736,6 @@
             <h2>Recipe Finder</h2>
         </div>
         <div class="nav-links">
-            <a href="add-recipe.html" class="nav-button add-recipe">Add Recipe</a>
             <div class="hamburger-menu" onclick="toggleMobileMenu()">
                 <span></span>
                 <span></span>
@@ -779,6 +776,7 @@
         </div>
     </div>
 
+    <script src="recently-viewed.js"></script>
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyBG8Gs3dAK-hhQfNK40k9AhVXm7tX_ys7E",
@@ -800,6 +798,9 @@
                 recipeDetails.innerHTML = '<p class="error-message">Recipe not found. Please go back and try again.</p>';
                 return;
             }
+
+            // Add to recently viewed
+            addToRecentlyViewed(recipe);
 
             // Create recipe HTML
             const recipeHTML = `
