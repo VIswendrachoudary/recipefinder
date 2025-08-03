@@ -3,7 +3,7 @@ Recipe Finder
 
 Recipe Finder is a web application designed to help users discover, generate, and contribute recipes easily. Whether you're searching for a specific dish, exploring new recipes, or creating your own, Recipe Finder provides a seamless experience.
 
-Web Pages
+web pages
 
 1. Login & Sign-in Page
 
